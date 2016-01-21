@@ -12,6 +12,8 @@ class OracleOfBacon
 
   attr_accessor :from, :to
   attr_reader :api_key, :response, :uri
+
+  
   
   include ActiveModel::Validations
   validates_presence_of :from
@@ -65,12 +67,41 @@ class OracleOfBacon
         parse_error_response
       # your code here: 'elsif' clauses to handle other responses
       # for responses not matching the 3 basic types, the Response
-      # object should have type 'unknown' and data 'unknown response'         
+      # object should have type 'unknown' and data 'unknown response' 
+      elsif !@doc.xpath('/link').empty?
+        parse_graph_response
+      elsif !@doc.xpath('/spellcheck').empty?
+        parse_spellcheck_response
+      elsif !@doc.xpath('/other').empty?
+        parse_unknown_response
       end
     end
     def parse_error_response
       @type = :error
       @data = 'Unauthorized access'
+    end
+
+    def parse_graph_response
+        @type = :graph
+        @data = []
+
+        @doc.xpath('/link')[0].children.each do |item|
+          @data << item.text unless item.text.strip.empty?
+        end
+    end
+
+    def parse_spellcheck_response
+       @type = :spellcheck
+       @data = []
+
+       @doc.xpath('/spellcheck')[0].children.each do |item|
+         @data << item.text unless item.text.strip.empty?
+       end
+    end
+
+    def parse_unknown_response
+      @type = :unknown
+      @data = 'unknown response type'
     end
   end
 end
