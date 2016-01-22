@@ -50,6 +50,7 @@ class OracleOfBacon
   def make_uri_from_arguments
     # your code here: set the @uri attribute to properly-escaped URI
     #   constructed from the @from, @to, @api_key arguments
+    @uri = "http://oracleofbacon.org/cgi-bin/xml?p=#{@api_key}&a=#{CGI.escape(@from)}&b=#{CGI.escape(@to)}"
   end
       
   class Response
@@ -65,9 +66,6 @@ class OracleOfBacon
     def parse_response
       if ! @doc.xpath('/error').empty?
         parse_error_response
-      # your code here: 'elsif' clauses to handle other responses
-      # for responses not matching the 3 basic types, the Response
-      # object should have type 'unknown' and data 'unknown response' 
       elsif !@doc.xpath('/link').empty?
         parse_graph_response
       elsif !@doc.xpath('/spellcheck').empty?
@@ -85,8 +83,8 @@ class OracleOfBacon
         @type = :graph
         @data = []
 
-        @doc.xpath('/link')[0].children.each do |item|
-          @data << item.text unless item.text.strip.empty?
+        @doc.xpath('/link')[0].children.each do |node|
+          @data << node.text unless node.text.strip.empty?
         end
     end
 
@@ -94,8 +92,8 @@ class OracleOfBacon
        @type = :spellcheck
        @data = []
 
-       @doc.xpath('/spellcheck')[0].children.each do |item|
-         @data << item.text unless item.text.strip.empty?
+       @doc.xpath('/spellcheck')[0].children.each do |node|
+         @data << node.text unless node.text.strip.empty?
        end
     end
 
